@@ -13,6 +13,7 @@ const commandoportable = require("commando-portable")
 
 ## Setting up your bot
 Now, keep in mind that I will call Discord.Client instance "client" in my code, so don't just copy and paste if client is named differently.
+
 First, you should consider adding this into your code:
 ```javascript
 commandoportable.client = client
@@ -29,6 +30,7 @@ commandoportable.handler(client, {
 })
 ```
 (both bots and dm are false by default)
+
 You can also add the edit handler to handle the message editing.
 ```typescript
 commandoportable.handleredit(client)
@@ -40,9 +42,13 @@ commandoportable.handleredit(client, {
 ```
 ## Adding commands
 To start, you can load the 2 example commands by using the function `commandoportable.loadExamples()`. It will load the help and ping commands.
+
 To directly access the 2 example commands, use `commandoportable.exampleCommands`. It's an object with 2 commands you can use to get better understanding of how commands are structured.
+
 If you start the bot now and try to use any commands, you may or may not guess the prefix. It's `!`. But what if you want to change it? There is a solution. Just use the `commandoportable.changePrefix(newprefix)` in order to change the prefix.
+
 At this point, you probably are thinking "How do I add more commands?". It's actually simple.
+
 You should use this example to add commands:
 ```javascript
 commandoportable.Command({name: "test", description: "A test", usage: "Test", category: "No category", admin: false, execute: async(msg, args, author, client) => {
@@ -64,9 +70,10 @@ To access all the commands you have right now, use `commandoportable.commands`.
 To access the prefix, use `commandoportable.prefix`.
 ## Custom prefixes
 To set the prefix for a user:
-1) Skip steps 2 and 3 if you have set up the custom prefixes already
+1) Skip steps 2-5 if you have set up the custom prefixes already
 2) Create a file in the folder with your bot with any name, however extension must be .json
-3) Set `commandoportable.filename` to the name of the file (don't provide the .json extension)
-4) Use `commandoportable.setUserPrefix(id, prefix)` to set the prefix
+4) Set `commandoportable.filename` to the name of your file, minus the JSON extension.
+5) Enable prefixes by using the `commandoportable.enablePrefixes()` function
+6) Use `commandoportable.setUserPrefix(id, prefix)` to set the prefix
 
 You can also reset the prefix with `commandoportable.resetUserPrefix(id)`
