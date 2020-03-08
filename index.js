@@ -86,12 +86,10 @@ const portable = {
             nsfw: false,
             category: "Manager",
             execute: async(msg, args, author, client) => {
-                let args2 = args.slice(1)
-      
                 msg.react("▶️").then(async _$ => {
                     try {
-                        if(args2.join(" ").startsWith("```js")) args2 = args2.join(" ").split("").slice(5, args2.join(" ").length-4).join("").split(" ")
-                        let evaled = await eval(args2.join(" "))
+                        if(args.join(" ").startsWith("```js")) args = args.join(" ").split("").slice(5, args.join(" ").length-4).join("").split(" ")
+                        let evaled = await eval(args.join(" "))
                         if(util.inspect(evaled, {depth: 0, maxArrayLength: 50}).length > 1992) {
                             console.log(util.inspect(evaled, {depth: 0, maxArrayLength: 50}))
                             msg.react('✅').then(msg.channel.send(`Output was too long. Check the console for output.`))
