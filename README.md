@@ -52,10 +52,15 @@ commandoportable.Command({name: "test", description: "A test", usage: "Test", ca
 })
 ```
 You maybe noticed the admin property. If right now you try to change it to true, the bot will send you the message about how you can't use this command. That's because you haven't added yourself to the admins array. Here's how you do it: `commandoportable.addAdmin(id)`.
+
 If you made a mistake, you can always remove the mistake from admins: `commandoportable.remAdmin(id)`.
+
 You can see who's admin by accessing `commandoportable.admins`.
+
 Also, if you didn't like the message it gave you when you weren't an admin, you can change it by accessing `commandoportable.adminMessage`. The same goes for `commandoportable.errorMessage` which will be sent when you have an error in your execute function.
+
 To access all the commands you have right now, use `commandoportable.commands`.
+
 To access the prefix, use `commandoportable.prefix`.
 ## Custom prefixes
 To set the prefix for a user:
@@ -63,4 +68,5 @@ To set the prefix for a user:
 2) Create a file in the folder with your bot with any name, however extension must be .json
 3) Set `commandoportable.filename` to the name of the file (don't provide the .json extension)
 4) Use `commandoportable.setUserPrefix(id, prefix)` to set the prefix
+
 You can also reset the prefix with `commandoportable.resetUserPrefix(id)`
