@@ -28,6 +28,7 @@ const portable = {
     adminMessage: "You must be the admin of the bot in order to execute this command.",
     errorMessage: "Catched an error!\nDo not worry, I have sent the error to my developer. Expect this error to be fixed in a short time.",
     nsfwMessage: "This command can only be executed in an NSFW channel!",
+    cooldownMessage: "This command is on cooldown.",
     changePrefix: (newprefix) => {
         prefix = newprefix
         portable.prefix = newprefix
@@ -74,6 +75,13 @@ const portable = {
             usage: `ping`,
             admin: false,
             nsfw: false,
+            /* cooldown: {
+                time: 10000,
+                worksFor: {
+
+                }
+            }, */
+            //Example of rate limit in 10s
             category: "Info",
             execute: async (msg, args, author, client) => {
                 msg.channel.send(`:ping_pong: Pong!\nLatency: ${Math.round(client.ping)} ms`)
@@ -86,6 +94,11 @@ const portable = {
             nsfw: false,
             category: "Manager",
             execute: async(msg, args, author, client) => {
+                let commands = portable.commands
+                let bot = portable.client
+                let message = msg
+                let channel = msg.channel
+                let instance = portable
                 msg.react("▶️").then(async _$ => {
                     try {
                         if(args.join(" ").startsWith("```js")) args = args.join(" ").split("").slice(5, args.join(" ").length-4).join("").split(" ")
@@ -145,8 +158,15 @@ const portable = {
                         if(!portable.nsfwMessage || typeof portable.nsfwMessage !== "string") return
                         else return msg.channel.send(portable.nsfwMessage)
                     }
+                    if(portable.commands[command].cooldown && portable.commands[command].cooldown.worksFor[msg.author.id] === true && !portable.admins.includes(msg.author.id)) {
+                        return msg.channel.send(portable.сooldownMessage).catch(() => {msg.channel.send("You are on cooldown!")})
+                    }
                     try {
                         portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
+                        if(portable.commands[command].cooldown) {
+                            portable.commands[command].cooldown.worksFor[msg.author.id] = true
+                            setTimeout(() => {portable.commands[command].cooldown.worksFor[msg.author.id] = false}, portable.commands[command].cooldown.time)
+                        }
                     } catch(error) {
                         if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Catched an error")
                         msg.channel.send(portable.errorMessage)
@@ -159,31 +179,38 @@ const portable = {
             })
     },
     handleredit: (client, options) => {
-        client.on('messageUpdate', msg => {
+        client.on('messageUpdate', (_oldmsg, msg) => {
             let command = msg.content.slice(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
-            if(!options) options = {bots: false, dm: false}
-            if(msg.author.bot && !options.bots) return
-            if(msg.channel.type === "dm" && !options.dm) return
-            if(Object.keys(portable.commands).includes(command) && msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
-                if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
-                    if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
-                    else return msg.channel.send(portable.adminMessage)
-                }
-                if(portable.commands[command].nsfw && !msg.channel.nsfw) {
-                    if(!portable.nsfwMessage || typeof portable.adminMessage !== "string") return
-                    else return msg.channel.send(portable.nsfwMessage)
-                }
-                try {
-                    portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
-                } catch(error) {
-                    if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Catched an error")
-                    msg.channel.send(portable.errorMessage)
-                    console.log(error)
-                    for(i of this.admins) {
-                        client.users.get(i).send(error, {code: "js"})
+                if(!options) options = {bots: false, dm: false}
+                if(msg.author.bot && !options.bots) return
+                if(msg.channel.type === "dm" && !options.dm) return
+                if(Object.keys(portable.commands).includes(command) && msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+                    if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
+                        if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
+                        else return msg.channel.send(portable.adminMessage)
+                    }
+                    if(portable.commands[command].nsfw && !msg.channel.nsfw) {
+                        if(!portable.nsfwMessage || typeof portable.nsfwMessage !== "string") return
+                        else return msg.channel.send(portable.nsfwMessage)
+                    }
+                    if(portable.commands[command].cooldown && portable.commands[command].cooldown.worksFor[msg.author.id] === true && !portable.admins.includes(msg.author.id)) {
+                        return msg.channel.send(portable.сooldownMessage).catch(() => {msg.channel.send("You are on cooldown!")})
+                    }
+                    try {
+                        portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
+                        if(portable.commands[command].cooldown) {
+                            portable.commands[command].cooldown.worksFor[msg.author.id] = true
+                            setTimeout(() => {portable.commands[command].cooldown.worksFor[msg.author.id] = false}, portable.commands[command].cooldown.time)
+                        }
+                    } catch(error) {
+                        if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Catched an error")
+                        msg.channel.send(portable.errorMessage)
+                        console.log(error)
+                        for(i of this.admins) {
+                            client.users.get(i).send(error, {code: "js"})
+                        }
                     }
                 }
-            }
         })
     }
 }
