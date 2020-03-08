@@ -129,13 +129,7 @@ const portable = {
     Command: (options) => {
         if(!options.name || !options.description || !options.usage || !options.execute) throw new Error("Not enough arguments provided")
         if(!portable.categories.includes(options.category ? options.category : "No category")) throw new Error("No such category, call categories to see available categories")
-        portable.commands[options.name] = {
-            description: options.description,
-            usage: options.usage,
-            admin: !!options.admin,
-            category: options.category ? options.category : "No category",
-            execute: options.execute
-        }
+        portable.commands[options.name] = options
     },
     handler: (client, options) => {
         /**
@@ -181,36 +175,36 @@ const portable = {
     handleredit: (client, options) => {
         client.on('messageUpdate', (_oldmsg, msg) => {
             let command = msg.content.slice(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
-                if(!options) options = {bots: false, dm: false}
-                if(msg.author.bot && !options.bots) return
-                if(msg.channel.type === "dm" && !options.dm) return
-                if(Object.keys(portable.commands).includes(command) && msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
-                    if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
-                        if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
-                        else return msg.channel.send(portable.adminMessage)
-                    }
-                    if(portable.commands[command].nsfw && !msg.channel.nsfw) {
-                        if(!portable.nsfwMessage || typeof portable.nsfwMessage !== "string") return
-                        else return msg.channel.send(portable.nsfwMessage)
-                    }
-                    if(portable.commands[command].cooldown && portable.commands[command].cooldown.worksFor[msg.author.id] === true && !portable.admins.includes(msg.author.id)) {
-                        return msg.channel.send(portable.сooldownMessage).catch(() => {msg.channel.send("You are on cooldown!")})
-                    }
-                    try {
-                        portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
-                        if(portable.commands[command].cooldown) {
-                            portable.commands[command].cooldown.worksFor[msg.author.id] = true
-                            setTimeout(() => {portable.commands[command].cooldown.worksFor[msg.author.id] = false}, portable.commands[command].cooldown.time)
-                        }
-                    } catch(error) {
+            if(!options) options = {bots: false, dm: false}
+            if(msg.author.bot && !options.bots) return
+            if(msg.channel.type === "dm" && !options.dm) return
+            if(Object.keys(portable.commands).includes(command) && msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+                if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
+                    if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
+                    else return msg.channel.send(portable.adminMessage)
+                }
+                if(portable.commands[command].nsfw && !msg.channel.nsfw) {
+                    if(!portable.nsfwMessage || typeof portable.adminMessage !== "string") return
+                    else return msg.channel.send(portable.nsfwMessage)
+                }
+                try {
+                    portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client).catch(() => {
                         if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Catched an error")
                         msg.channel.send(portable.errorMessage)
                         console.log(error)
-                        for(i of this.admins) {
+                        for(i of portable.admins) {
                             client.users.get(i).send(error, {code: "js"})
-                        }
+                        } 
+                    })
+                } catch(error) {
+                    if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Catched an error")
+                    msg.channel.send(portable.errorMessage)
+                    console.log(error)
+                    for(i of portable.admins) {
+                        client.users.get(i).send(error, {code: "js"})
                     }
                 }
+            }
         })
     }
 }
