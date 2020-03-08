@@ -77,3 +77,15 @@ To set the prefix for a user:
 6) Use `commandoportable.setUserPrefix(id, prefix)` to set the prefix
 
 You can also reset the prefix with `commandoportable.resetUserPrefix(id)`
+
+## Example commands
+help: If no arguments, shows the list of all commands and categories.
+If an argument is provided, shows the following category/command.
+
+ping: Shows the bot's latency.
+
+eval: Evaluate JS code. Admin-only. Here are the aliases:
+message - msg
+bot - client instance
+channel - the channel this command was called in
+commands - list of available commands
