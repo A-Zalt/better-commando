@@ -56,4 +56,11 @@ If you made a mistake, you can always remove the mistake from admins: `commandop
 You can see who's admin by accessing `commandoportable.admins`.
 Also, if you didn't like the message it gave you when you weren't an admin, you can change it by accessing `commandoportable.adminMessage`. The same goes for `commandoportable.errorMessage` which will be sent when you have an error in your execute function.
 To access all the commands you have right now, use `commandoportable.commands`.
-And lastly, to access the prefix, use `commandoportable.prefix`.
+To access the prefix, use `commandoportable.prefix`.
+## Custom prefixes
+To set the prefix for a user:
+1) Skip steps 2 and 3 if you have set up the custom prefixes already
+2) Create a file in the folder with your bot with any name, however extension must be .json
+3) Set `commandoportable.filename` to the name of the file (don't provide the .json extension)
+4) Use `commandoportable.setUserPrefix(id, prefix)` to set the prefix
+You can also reset the prefix with `commandoportable.resetUserPrefix(id)`
