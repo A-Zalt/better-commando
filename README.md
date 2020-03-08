@@ -29,7 +29,15 @@ commandoportable.handler(client, {
 })
 ```
 (both bots and dm are false by default)
-Now, onto adding commands!
+You can also add the edit handler to handle the message editing.
+```typescript
+commandoportable.handleredit(client)
+//or you can customize the handler:
+commandoportable.handleredit(client, {
+  bots: boolean, //whether bots can use commands or not
+  dm: boolean //whether users can use your bot in DMs or not
+})
+```
 ## Adding commands
 To start, you can load the 2 example commands by using the function `commandoportable.loadExamples()`. It will load the help and ping commands.
 To directly access the 2 example commands, use `commandoportable.exampleCommands`. It's an object with 2 commands you can use to get better understanding of how commands are structured.
