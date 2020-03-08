@@ -39,9 +39,9 @@ commandoportable.handleredit(client, {
 })
 ```
 ## Adding commands
-To start, you can load the 2 example commands by using the function `commandoportable.loadExamples()`. It will load the help and ping commands.
+To start, you can load the 3 example commands by using the function `commandoportable.loadExamples()`. It will load the help, ping and eval commands.
 
-To directly access the 2 example commands, use `commandoportable.exampleCommands`. It's an object with 2 commands you can use to get better understanding of how commands are structured.
+To directly access the 3 example commands, use `commandoportable.exampleCommands`. It's an object with 2 commands you can use to get better understanding of how commands are structured.
 
 If you start the bot now and try to use any commands, you may or may not guess the prefix. It's `!`. But what if you want to change it? There is a solution. Just use the `commandoportable.changePrefix(newprefix)` in order to change the prefix.
 
