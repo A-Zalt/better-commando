@@ -85,7 +85,11 @@ If an argument is provided, shows the following category/command.
 ping: Shows the bot's latency.
 
 eval: Evaluate JS code. Admin-only. Here are the aliases:
+
 message - msg
+
 bot - client instance
+
 channel - the channel this command was called in
+
 commands - list of available commands
