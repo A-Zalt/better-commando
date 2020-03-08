@@ -51,7 +51,7 @@ const portable = {
                 if(!args[0]) {
                     let commands = []
                     for(i of Object.keys(portable.commands)) {
-                        if(!this.admins.includes(author.id) && portable.commands[i].admin !== true) commands.push(i)
+                        if(!portable.admins.includes(author.id) && portable.commands[i].admin !== true) commands.push(i)
                     }
                     msg.channel.send(`===HELP===\nCategories: ${portable.categories.join(", ")}\nCommands: ${commands.join(", ")}`, {code: true})
                 } else {
@@ -144,7 +144,7 @@ const portable = {
                         else return msg.channel.send(portable.adminMessage)
                     }
                     if(portable.commands[command].nsfw && !msg.channel.nsfw) {
-                        if(!portable.nsfwMessage || typeof portable.adminMessage !== "string") return
+                        if(!portable.nsfwMessage || typeof portable.nsfwMessage !== "string") return
                         else return msg.channel.send(portable.nsfwMessage)
                     }
                     try {
@@ -161,7 +161,7 @@ const portable = {
             })
     },
     handleredit: (client, options) => {
-        client.on('message', msg => {
+        client.on('messageUpdate', msg => {
             let command = msg.content.slice(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
             if(!options) options = {bots: false, dm: false}
             if(msg.author.bot && !options.bots) return
