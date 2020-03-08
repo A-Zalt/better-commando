@@ -6,7 +6,7 @@ First, you should download the index.js out of this page.
 
 Then, you import the library in your bot file with:
 ```javascript
-const commandoportable = require("commando-portable")
+const commandoportable = require("./index.js")
 ```
 
 ## Setting up your bot
@@ -29,7 +29,7 @@ commandoportable.handler(client, {
 ```
 (both bots and dm are false by default)
 
-You can also add the edit handler to handle the message editing.
+You can also add the edit handler to handle message editing.
 ```typescript
 commandoportable.handleredit(client)
 //or you can customize the handler:
