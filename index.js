@@ -168,21 +168,25 @@ const portable = {
             if(msg.channel.type === "dm" && !options.dm) return
             if(Object.keys(portable.commands).includes(command) && msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
                 if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
-                    if(!portable.adminMessage) return
+                    if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
                     else return msg.channel.send(portable.adminMessage)
+                }
+                if(portable.commands[command].nsfw && !msg.channel.nsfw) {
+                    if(!portable.nsfwMessage || typeof portable.adminMessage !== "string") return
+                    else return msg.channel.send(portable.nsfwMessage)
                 }
                 try {
                     portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
                 } catch(error) {
-                    if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER]")
+                    if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Catched an error")
                     msg.channel.send(portable.errorMessage)
                     console.log(error)
-                    for(i of portable.admins) {
+                    for(i of this.admins) {
                         client.users.get(i).send(error, {code: "js"})
                     }
                 }
             }
-            })
+        })
     }
 }
 module.exports = portable
