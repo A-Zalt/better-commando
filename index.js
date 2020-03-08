@@ -1,4 +1,5 @@
 let prefix = "!"
+const util = require('util')
 const fs = require('fs')
 const portable = {
     admins: [],
@@ -26,6 +27,7 @@ const portable = {
     commands: {},
     adminMessage: "You must be the admin of the bot in order to execute this command.",
     errorMessage: "Catched an error!\nDo not worry, I have sent the error to my developer. Expect this error to be fixed in a short time.",
+    nsfwMessage: "This command can only be executed in an NSFW channel!",
     changePrefix: (newprefix) => {
         prefix = newprefix
         portable.prefix = newprefix
@@ -43,10 +45,15 @@ const portable = {
             description: "Get help about commands and categories.",
             usage: `help`,
             admin: false,
+            nsfw: false,
             category: "Info",
             execute: async (msg, args, author, client) => {
                 if(!args[0]) {
-                    msg.channel.send(`===HELP===\nCategories: ${portable.categories.join(", ")}\nCommands: ${Object.keys(portable.commands).join(", ")}`, {code: true})
+                    let commands = []
+                    for(i of Object.keys(portable.commands)) {
+                        if(!this.admins.includes(author.id) && portable.commands[i].admin !== true) commands.push(i)
+                    }
+                    msg.channel.send(`===HELP===\nCategories: ${portable.categories.join(", ")}\nCommands: ${commands.join(", ")}`, {code: true})
                 } else {
                     if(Object.keys(portable.commands).includes(args[0])) {
                         msg.channel.send(`===HELP===\nCommand: ${args[0]}\nDescription: ${portable.commands[args[0]].description}\nUsage: ${portable.commands[args[0]].usage}`, {code: true})
@@ -66,10 +73,40 @@ const portable = {
             description: "Ping the bot.",
             usage: `ping`,
             admin: false,
+            nsfw: false,
             category: "Info",
             execute: async (msg, args, author, client) => {
-                let d = new Date()
                 msg.channel.send(`:ping_pong: Pong!\nLatency: ${Math.round(client.ping)} ms`)
+            }
+        },
+        eval: {
+            description: "Evaluate JavaScript code.",
+            usage: `eval <code>`,
+            admin: true,
+            nsfw: false,
+            category: "Manager",
+            execute: async(msg, args, author, client) => {
+                let args2 = args.slice(1)
+      
+                msg.react("▶️").then(async _$ => {
+                    try {
+                        if(args2.join(" ").startsWith("```js")) args2 = args2.join(" ").split("").slice(5, args2.join(" ").length-4).join("").split(" ")
+                        let evaled = await eval(args2.join(" "))
+                        if(util.inspect(evaled, {depth: 0, maxArrayLength: 50}).length > 1992) {
+                            console.log(util.inspect(evaled, {depth: 0, maxArrayLength: 50}))
+                            msg.react('✅').then(msg.channel.send(`Output was too long. Check the console for output.`))
+                        }
+                    if(util.inspect(evaled, {depth: 0, maxArrayLength: 50}).length < 1) {
+                        msg.react('‼')
+                        return msg.channel.send(`DiscordAPIError: Cannot send an empty message`, {code: "js"}).catch(() => {})
+                    }
+                    msg.react("✅")
+                    msg.channel.send(util.inspect(evaled, {depth: 0, maxArrayLength: 50}).replace(мозг.гопота.token, "[token omitted]").replace(util.inspect(Array.from(мозг.гопота.token), {depth: 0, maxArrayLength: 50}), "['[', 't', 'o', 'k', 'e', 'n', ' ', 'o', 'm', 'i', 't', 't', 'e', 'd', ']']"), {code: "js"})
+                } catch (err) {
+                    msg.react('‼')
+                    msg.channel.send(err.stack, {code: "js"}).catch(() => {})
+                }
+            })
             }
         }
     },
@@ -103,13 +140,17 @@ const portable = {
                 if(msg.channel.type === "dm" && !options.dm) return
                 if(Object.keys(portable.commands).includes(command) && msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
                     if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
-                        if(!portable.adminMessage) return
+                        if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
                         else return msg.channel.send(portable.adminMessage)
+                    }
+                    if(portable.commands[command].nsfw && !msg.channel.nsfw) {
+                        if(!portable.nsfwMessage || typeof portable.adminMessage !== "string") return
+                        else return msg.channel.send(portable.nsfwMessage)
                     }
                     try {
                         portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
                     } catch(error) {
-                        if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER]")
+                        if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Catched an error")
                         msg.channel.send(portable.errorMessage)
                         console.log(error)
                         for(i of this.admins) {
@@ -136,7 +177,7 @@ const portable = {
                     if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER]")
                     msg.channel.send(portable.errorMessage)
                     console.log(error)
-                    for(i of this.admins) {
+                    for(i of portable.admins) {
                         client.users.get(i).send(error, {code: "js"})
                     }
                 }
