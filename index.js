@@ -1,4 +1,5 @@
 let prefix = "!"
+const fs = require('fs')
 const portable = {
     admins: [],
     categories: ["Info", "No category"],
@@ -16,12 +17,26 @@ const portable = {
         return admins
     },
     prefix: prefix,
+    filename: "prefixes",
+    prefixes: {enabled: false},
+    enablePrefixes: () => {
+        portable.prefixes.enabled = true
+        portable.prefixes.all = JSON.parse(fs.readFileSync(`${portable.filename}.json`))
+    },
     commands: {},
     adminMessage: "You must be the admin of the bot in order to execute this command.",
     errorMessage: "Catched an error!\nDo not worry, I have sent the error to my developer. Expect this error to be fixed in a short time.",
     changePrefix: (newprefix) => {
         prefix = newprefix
         portable.prefix = newprefix
+    },
+    setUserPrefix: (id, prefix) => {
+        portable.prefixes.all[id] = prefix
+        fs.writeFileSync(`${portable.filename}.json`, JSON.stringify(portable.prefixes.all))
+    },
+    resetUserPrefix: (id) => {
+        delete portable.prefixes.all[id]
+        fs.writeFileSync(`${portable.filename}.json`, JSON.stringify(portable.prefixes.all))
     },
     exampleCommands: {
         help: {
@@ -82,12 +97,11 @@ const portable = {
          * }
          */
             client.on('message', msg => {
-                
-                let command = msg.content.slice(portable.prefix.length).split(" ").shift().toLowerCase()
+                let command = msg.content.slice(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
                 if(!options) options = {bots: false, dm: false}
                 if(msg.author.bot && !options.bots) return
                 if(msg.channel.type === "dm" && !options.dm) return
-                if(Object.keys(portable.commands).includes(command) && msg.content.startsWith(portable.prefix)) {
+                if(Object.keys(portable.commands).includes(command) && msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
                     if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
                         if(!portable.adminMessage) return
                         else return msg.channel.send(portable.adminMessage)
@@ -106,28 +120,28 @@ const portable = {
             })
     },
     handleredit: (client, options) => {
-        client.on('messageUpdate', (_oldmsg, newmsg) => {
-            let command = newmsg.content.slice(portable.prefix.length).split(" ").shift().toLowerCase()
+        client.on('message', msg => {
+            let command = msg.content.slice(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
             if(!options) options = {bots: false, dm: false}
-            if(newmsg.author.bot && !options.bots) return
-            if(newmsg.channel.type === "dm" && !options.dm) return
-            if(Object.keys(portable.commands).includes(command) && newmsg.content.startsWith(portable.prefix)) {
-                if(portable.commands[command].admin && !portable.admins.includes(newmsg.author.id)) {
+            if(msg.author.bot && !options.bots) return
+            if(msg.channel.type === "dm" && !options.dm) return
+            if(Object.keys(portable.commands).includes(command) && msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+                if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
                     if(!portable.adminMessage) return
-                    else return newmsg.channel.send(portable.adminMessage)
+                    else return msg.channel.send(portable.adminMessage)
                 }
                 try {
-                    portable.commands[command].execute(newmsg, newmsg.content.split(" ").slice(1), newmsg.author, client)
+                    portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
                 } catch(error) {
-                    if(!portable.errorMessage) newmsg.channel.send("[PLACEHOLDER]")
-                    newmsg.channel.send(portable.errorMessage)
+                    if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER]")
+                    msg.channel.send(portable.errorMessage)
                     console.log(error)
                     for(i of this.admins) {
                         client.users.get(i).send(error, {code: "js"})
                     }
                 }
             }
-        })
+            })
     }
 }
 module.exports = portable
