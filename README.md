@@ -78,6 +78,9 @@ To set the prefix for a user:
 
 You can also reset the prefix with `commandoportable.resetUserPrefix(id)`
 
+## Cooldowns
+Cooldowns are quite simple. `cooldown` is a property of a command with type object in which you must provide the `time` property (cooldown in ms) and worksFor, which is just an empty object, but is required in order for the cooldown to work.
+
 ## Example commands
 help: If no arguments, shows the list of all commands and categories.
 If an argument is provided, shows the following category/command.
