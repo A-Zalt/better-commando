@@ -57,11 +57,13 @@ commandoportable.Command({name: "test", description: "A test", usage: "Test", ca
 ```
 You maybe noticed the admin property. If right now you try to change it to true, the bot will send you the message about how you can't use this command. That's because you haven't added yourself to the admins array. Here's how you do it: `commandoportable.addAdmin(id)`.
 
+To make the command only available in NSFW channels, set nsfw in options to true.
+
 If you made a mistake, you can always remove the mistake from admins: `commandoportable.remAdmin(id)`.
 
 You can see who's admin by accessing `commandoportable.admins`.
 
-Also, if you didn't like the message it gave you when you weren't an admin, you can change it by accessing `commandoportable.adminMessage`. The same goes for `commandoportable.errorMessage` which will be sent when you have an error in your execute function.
+Also, if you didn't like the message it gave you when you weren't an admin, you can change it by accessing `commandoportable.adminMessage`. The same goes for `commandoportable.errorMessage` which will be sent when you have an error in your execute function and `commandoportable.nsfwMessage` which will be sent if a NSFW command is executed in non-NSFW channel.
 
 To access all the commands you have right now, use `commandoportable.commands`.
 
