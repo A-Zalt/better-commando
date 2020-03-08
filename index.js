@@ -99,7 +99,7 @@ const portable = {
                         return msg.channel.send(`DiscordAPIError: Cannot send an empty message`, {code: "js"}).catch(() => {})
                     }
                     msg.react("✅")
-                    msg.channel.send(util.inspect(evaled, {depth: 0, maxArrayLength: 50}).replace(мозг.гопота.token, "[token omitted]").replace(util.inspect(Array.from(мозг.гопота.token), {depth: 0, maxArrayLength: 50}), "['[', 't', 'o', 'k', 'e', 'n', ' ', 'o', 'm', 'i', 't', 't', 'e', 'd', ']']"), {code: "js"})
+                    msg.channel.send(util.inspect(evaled, {depth: 0, maxArrayLength: 50}).replace(client.token, "[token omitted]").replace(util.inspect(Array.from(client.token), {depth: 0, maxArrayLength: 50}), "['[', 't', 'o', 'k', 'e', 'n', ' ', 'o', 'm', 'i', 't', 't', 'e', 'd', ']']"), {code: "js"})
                 } catch (err) {
                     msg.react('‼')
                     msg.channel.send(err.stack, {code: "js"}).catch(() => {})
