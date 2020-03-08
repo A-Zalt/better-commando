@@ -1,7 +1,7 @@
 # commando-portable
 A library made for Discord.js users to make command handling in one file easier
 
-##Installing
+## Installing
 First, you should install the library. It can be done with this command:
 ```
 npm install commando-portable --save
@@ -11,7 +11,7 @@ Then, you import the library in your bot file with:
 const commandoportable = require("commando-portable")
 ```
 
-##Setting up your bot
+## Setting up your bot
 Now, keep in mind that I will call Discord.Client instance "client" in my code, so don't just copy and paste if client is named differently.
 First, you should consider adding this into your code:
 ```javascript
@@ -30,7 +30,7 @@ commandoportable.handler(client, {
 ```
 (both bots and dm are false by default)
 Now, onto adding commands!
-##Adding commands
+## Adding commands
 To start, you can load the 2 example commands by using the function `commandoportable.loadExamples()`. It will load the help and ping commands.
 To directly access the 2 example commands, use `commandoportable.exampleCommands`. It's an object with 2 commands you can use to get better understanding of how commands are structured.
 If you start the bot now and try to use any commands, you may or may not guess the prefix. It's `!`. But what if you want to change it? There is a solution. Just use the `commandoportable.changePrefix(newprefix)` in order to change the prefix.
