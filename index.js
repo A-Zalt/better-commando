@@ -1,14 +1,13 @@
-const discord = require("discord.js")
 let prefix = "!"
 const portable = {
     admins: [],
     categories: ["Info", "No category"],
     addAdmin: (id) => {
-        if(discord.SnowflakeUtil.deconstruct(id).timestamp <= 1420070400000) throw new Error("Wrong Discord Snowflake")
+        if(typeof id !== "string" || id.length !== 18) throw new Error("Wrong Discord Snowflake")
         portable.admins.push(id)
     },
     remAdmin: (id) => {
-        if(discord.SnowflakeUtil.deconstruct(id).timestamp <= 1420070400000) throw new Error("Wrong Discord Snowflake")
+        if(typeof id !== "string" || id.length !== 18) throw new Error("Wrong Discord Snowflake")
         let s = portable.admins
         portable.admins = []
         for(i of s) {
@@ -105,6 +104,30 @@ const portable = {
                     }
                 }
             })
+    },
+    handleredit: (client, options) => {
+        client.on('messageUpdate', (_oldmsg, newmsg) => {
+            let command = newmsg.content.slice(portable.prefix.length).split(" ").shift().toLowerCase()
+            if(!options) options = {bots: false, dm: false}
+            if(newmsg.author.bot && !options.bots) return
+            if(newmsg.channel.type === "dm" && !options.dm) return
+            if(Object.keys(portable.commands).includes(command) && newmsg.content.startsWith(portable.prefix)) {
+                if(portable.commands[command].admin && !portable.admins.includes(newmsg.author.id)) {
+                    if(!portable.adminMessage) return
+                    else return newmsg.channel.send(portable.adminMessage)
+                }
+                try {
+                    portable.commands[command].execute(newmsg, newmsg.content.split(" ").slice(1), newmsg.author, client)
+                } catch(error) {
+                    if(!portable.errorMessage) newmsg.channel.send("[PLACEHOLDER]")
+                    newmsg.channel.send(portable.errorMessage)
+                    console.log(error)
+                    for(i of this.admins) {
+                        client.users.get(i).send(error, {code: "js"})
+                    }
+                }
+            }
+        })
     }
 }
 module.exports = portable
