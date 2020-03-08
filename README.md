@@ -2,10 +2,8 @@
 A library made for Discord.js users to make command handling in one file easier
 
 ## Installing
-First, you should install the library. It can be done with this command:
-```
-npm install commando-portable --save
-```
+First, you should download the index.js out of this page.
+
 Then, you import the library in your bot file with:
 ```javascript
 const commandoportable = require("commando-portable")
