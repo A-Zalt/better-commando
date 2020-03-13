@@ -26,7 +26,7 @@ const portable = {
     },
     commands: {},
     adminMessage: "You must be the admin of the bot in order to execute this command.",
-    errorMessage: "Catched an error!\nDo not worry, I have sent the error to my developer. Expect this error to be fixed in a short time.",
+    errorMessage: "Caught an error!\nDo not worry, I have sent the error to my developer. Expect this error to be fixed in a short time.",
     nsfwMessage: "This command can only be executed in an NSFW channel!",
     cooldownMessage: "This command is on cooldown.",
     changePrefix: (newprefix) => {
