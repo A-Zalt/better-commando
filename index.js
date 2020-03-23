@@ -52,7 +52,8 @@ const portable = {
                 if(!args[0]) {
                     let commands = []
                     for(i of Object.keys(portable.commands)) {
-                        if(!portable.admins.includes(author.id) && portable.commands[i].admin !== true) commands.push(i)
+                        if(!portable.admins.includes(author.id) && portable.commands[i].admin) return
+                        commands.push(i)
                     }
                     msg.channel.send(`===HELP===\nCategories: ${portable.categories.join(", ")}\nCommands: ${commands.join(", ")}`, {code: true})
                 } else {
@@ -139,7 +140,63 @@ const portable = {
          * }
          */
             client.on('message', msg => {
-                let command = msg.content.slice(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
+                let command = msg.content.slice((!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id]) ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
+                if(!options) options = {bots: false, dm: false}
+                if(msg.author.bot && !options.bots) return
+                if(msg.channel.type === "dm" && !options.dm) return
+                if(Object.keys(portable.commands).includes(command) && msg.content.startsWith((!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id]) ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+                    if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
+                        if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
+                        else return msg.channel.send(portable.adminMessage)
+                    }
+                    if(portable.commands[command].nsfw && !msg.channel.nsfw) {
+                        if(!portable.nsfwMessage || typeof portable.nsfwMessage !== "string") return
+                        else return msg.channel.send(portable.nsfwMessage)
+                    }
+                    if(portable.commands[command].cooldown && portable.commands[command].cooldown.worksFor[msg.author.id] === true && !portable.admins.includes(msg.author.id)) {
+                        return msg.channel.send(portable.сooldownMessage).catch(() => {msg.channel.send("You are on cooldown!")})
+                    }
+                    try {
+                        portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
+                        if(portable.commands[command].cooldown) {
+                            portable.commands[command].cooldown.worksFor[msg.author.id] = true
+                            setTimeout(() => {portable.commands[command].cooldown.worksFor[msg.author.id] = false}, portable.commands[command].cooldown.time)
+                        }
+                    } catch(error) {
+                        if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Caught an error")
+                        msg.channel.send(portable.errorMessage)
+                        console.log(error)
+                        for(i of this.admins) {
+                            client.users.get(i).send(error, {code: "js"})
+                        }
+                    }
+                } else {
+                    if(msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+                        for(i of Object.keys(portable.commands)) {
+                            if(portable.commands[i].aliases && portable.commands[i].aliases.includes(command)) {
+                                try {
+                                    portable.commands[i].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
+                                    if(portable.commands[i].cooldown) {
+                                        portable.commands[i].cooldown.worksFor[msg.author.id] = true
+                                        setTimeout(() => {portable.commands[i].cooldown.worksFor[msg.author.id] = false}, portable.commands[command].cooldown.time)
+                                    }
+                                } catch(error) {
+                                    if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Caught an error")
+                                    msg.channel.send(portable.errorMessage)
+                                    console.log(error)
+                                    for(i of portable.admins) {
+                                        client.users.get(i).send(error, {code: "js"})
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+    },
+    handleredit: (client, options) => {
+        client.on("messageUpdate", (_old, msg) => {
+        let command = msg.content.slice(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
                 if(!options) options = {bots: false, dm: false}
                 if(msg.author.bot && !options.bots) return
                 if(msg.channel.type === "dm" && !options.dm) return
@@ -162,49 +219,35 @@ const portable = {
                             setTimeout(() => {portable.commands[command].cooldown.worksFor[msg.author.id] = false}, portable.commands[command].cooldown.time)
                         }
                     } catch(error) {
-                        if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Catched an error")
+                        if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Caught an error")
                         msg.channel.send(portable.errorMessage)
                         console.log(error)
                         for(i of this.admins) {
                             client.users.get(i).send(error, {code: "js"})
                         }
                     }
-                }
-            })
-    },
-    handleredit: (client, options) => {
-        client.on('messageUpdate', (_oldmsg, msg) => {
-            let command = msg.content.slice(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
-            if(!options) options = {bots: false, dm: false}
-            if(msg.author.bot && !options.bots) return
-            if(msg.channel.type === "dm" && !options.dm) return
-            if(Object.keys(portable.commands).includes(command) && msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
-                if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
-                    if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
-                    else return msg.channel.send(portable.adminMessage)
-                }
-                if(portable.commands[command].nsfw && !msg.channel.nsfw) {
-                    if(!portable.nsfwMessage || typeof portable.adminMessage !== "string") return
-                    else return msg.channel.send(portable.nsfwMessage)
-                }
-                try {
-                    portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client).catch(() => {
-                        if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Catched an error")
-                        msg.channel.send(portable.errorMessage)
-                        console.log(error)
-                        for(i of portable.admins) {
-                            client.users.get(i).send(error, {code: "js"})
-                        } 
-                    })
-                } catch(error) {
-                    if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Catched an error")
-                    msg.channel.send(portable.errorMessage)
-                    console.log(error)
-                    for(i of portable.admins) {
-                        client.users.get(i).send(error, {code: "js"})
+                } else {
+                    if(msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+                        for(i of Object.keys(portable.commands)) {
+                            if(portable.commands[i].aliases && portable.commands[i].aliases.includes(command)) {
+                                try {
+                                    portable.commands[i].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
+                                    if(portable.commands[i].cooldown) {
+                                        portable.commands[i].cooldown.worksFor[msg.author.id] = true
+                                        setTimeout(() => {portable.commands[i].cooldown.worksFor[msg.author.id] = false}, portable.commands[command].cooldown.time)
+                                    }
+                                } catch(error) {
+                                    if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Caught an error")
+                                    msg.channel.send(portable.errorMessage)
+                                    console.log(error)
+                                    for(i of portable.admins) {
+                                        client.users.get(i).send(error, {code: "js"})
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-            }
         })
     }
 }
