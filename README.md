@@ -96,3 +96,6 @@ bot - client instance
 channel - the channel this command was called in
 
 commands - list of available commands
+
+## Aliases
+Want to have one or several aliases for your command? Simple, just assign the property aliases to a command! Aliases must be an array containing all the aliases that the command can use.
