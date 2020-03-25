@@ -3,6 +3,7 @@ const util = require('util')
 const fs = require('fs')
 const portable = {
     admins: [],
+    evalExport: false,
     categories: ["Info", "No category"],
     addAdmin: (id) => {
         if(typeof id !== "string" || id.length !== 18) throw new Error("Wrong Discord Snowflake")
@@ -23,6 +24,9 @@ const portable = {
     enablePrefixes: () => {
         portable.prefixes.enabled = true
         portable.prefixes.all = JSON.parse(fs.readFileSync(`${portable.filename}.json`))
+    },
+    emulate: (content, channel) => {
+        return portable.client.emit("message", {content: content, author: {id: 1, bot: false}, channel: channel})
     },
     commands: {},
     adminMessage: "You must be the admin of the bot in order to execute this command.",
@@ -103,6 +107,7 @@ const portable = {
                 let message = msg
                 let channel = msg.channel
                 let instance = portable
+                let _export = portable.evalExport
                 msg.react("▶️").then(async _$ => {
                     try {
                         if(args.join(" ").startsWith("```js")) args = args.join(" ").split("").slice(5, args.join(" ").length-4).join("").split(" ")
