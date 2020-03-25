@@ -99,3 +99,9 @@ commands - list of available commands
 
 ## Aliases
 Want to have one or several aliases for your command? Simple, just assign the property aliases to the command! Aliases must be an array containing all the aliases that the command can use.
+
+## Emulating commands
+To emulate commands, use `bettercmd.emulate(content, channel)`. But you have to provide a real Discord channel, as it just emits the message event.
+
+## Export to !eval
+While you were using the !eval command, you probably have noticed that variables come from the library file, not your bot file(s). To fix that, just set `bettercmd.evalExport` to whatever you want to export to the !eval command.
