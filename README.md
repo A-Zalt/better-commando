@@ -1,12 +1,12 @@
-# commando-portable
-A library made for Discord.js users to make command handling in one file easier
+# better-commando
+Constantly innovating to be better than official Commando
 
 ## Installing
 First, you should download the index.js out of this page.
 
 Then, you import the library in your bot file with:
 ```javascript
-const commandoportable = require("./index.js")
+const bettercmd = require("./index.js")
 ```
 
 ## Setting up your bot
@@ -14,15 +14,15 @@ Now, keep in mind that I will call Discord.Client instance "client" in my code, 
 
 First, you should consider adding this into your code:
 ```javascript
-commandoportable.client = client
+bettercmd.client = client
 ```
 This will port the client instance to the commands system so commands using the client instance can work properly.
 Secondly, you <b>must</b> add the handler or bot will not respond to messages. Also, you want to put the handler last in your code.
 Here's how you add a handler:
 ```typescript
-commandoportable.handler(client)
+bettercmd.handler(client)
 //or you can customize the handler:
-commandoportable.handler(client, {
+bettercmd.handler(client, {
   bots: boolean, //whether bots can use commands or not
   dm: boolean //whether users can use your bot in DMs or not
 })
@@ -31,52 +31,52 @@ commandoportable.handler(client, {
 
 You can also add the edit handler to handle message editing.
 ```typescript
-commandoportable.handleredit(client)
-//or you can customize the handler:
-commandoportable.handleredit(client, {
+bettercmd.handleredit(client)
+//or you can customize the handler, just like the main handler:
+bettercmd.handleredit(client, {
   bots: boolean, //whether bots can use commands or not
   dm: boolean //whether users can use your bot in DMs or not
 })
 ```
 ## Adding commands
-To start, you can load the 3 example commands by using the function `commandoportable.loadExamples()`. It will load the help, ping and eval commands.
+To start, you can load the 3 example commands by using the function `bettercmd.loadExamples()`. It will load the help, ping and eval commands.
 
-To directly access the 3 example commands, use `commandoportable.exampleCommands`. It's an object with 2 commands you can use to get better understanding of how commands are structured.
+To directly access the 3 example commands, use `bettercmd.exampleCommands`. It's an object with 3 commands you can use to get better understanding of how commands are structured.
 
-If you start the bot now and try to use any commands, you may or may not guess the prefix. It's `!`. But what if you want to change it? There is a solution. Just use the `commandoportable.changePrefix(newprefix)` in order to change the prefix.
+If you start the bot now and try to use any commands, you may or may not guess the prefix. It's `!`. But what if you want to change it? There is a solution. Just use the `bettercmd.changePrefix(newprefix)` in order to change the prefix. Because of the special prefix system, you can't directly change it from `bettercmd.prefix` or it will break.
 
 At this point, you probably are thinking "How do I add more commands?". It's actually simple.
 
 You should use this example to add commands:
 ```javascript
-commandoportable.Command({name: "test", description: "A test", usage: "Test", category: "No category", admin: false, execute: async(msg, args, author, client) => {
+bettercmd.Command({name: "test", description: "A test", usage: "Test", category: "No category", admin: false, execute: async(msg, args, author, client) => {
   author.send("test")
   msg.react(":white_check_mark:")
 }
 })
 ```
-You maybe noticed the admin property. If right now you try to change it to true, the bot will send you the message about how you can't use this command. That's because you haven't added yourself to the admins array. Here's how you do it: `commandoportable.addAdmin(id)`.
+You maybe noticed the admin property. If right now you try to change it to true, the bot will send you the message about how you can't use this command. That's because you haven't added yourself to the admins array. Here's how you do it: `bettercmd.addAdmin(id)`.
 
 To make the command only available in NSFW channels, set nsfw in options to true.
 
-If you made a mistake, you can always remove the mistake from admins: `commandoportable.remAdmin(id)`.
+If you made a mistake, you can always remove the mistake from admins: `bettercmd.remAdmin(id)`.
 
-You can see who's admin by accessing `commandoportable.admins`.
+You can see who's admin by accessing `bettercmd.admins`.
 
-Also, if you didn't like the message it gave you when you weren't an admin, you can change it by accessing `commandoportable.adminMessage`. The same goes for `commandoportable.errorMessage` which will be sent when you have an error in your execute function and `commandoportable.nsfwMessage` which will be sent if a NSFW command is executed in non-NSFW channel.
+Also, if you didn't like the message it gave you when you weren't an admin, you can change it by accessing `bettercmd.adminMessage`. The same goes for `bettercmd.errorMessage` which will be sent when you have an error in your execute function and `bettercmd.nsfwMessage` which will be sent if a NSFW command is executed in non-NSFW channel.
 
-To access all the commands you have right now, use `commandoportable.commands`.
+To access all the commands you have right now, use `bettercmd.commands`.
 
-To access the prefix, use `commandoportable.prefix`.
+To access the prefix, use `bettercmd.prefix`.
 ## Custom prefixes
 To set the prefix for a user:
 1) Skip steps 2-5 if you have set up the custom prefixes already
 2) Create a file in the folder with your bot with any name, however extension must be .json
-4) Set `commandoportable.filename` to the name of your file, minus the JSON extension.
-5) Enable prefixes by using the `commandoportable.enablePrefixes()` function
-6) Use `commandoportable.setUserPrefix(id, prefix)` to set the prefix
+4) Set `bettercmd.filename` to the name of your file, minus the JSON extension.
+5) Enable prefixes by using the `bettercmd.enablePrefixes()` function
+6) Use `bettercmd.setUserPrefix(id, prefix)` to set the prefix
 
-You can also reset the prefix with `commandoportable.resetUserPrefix(id)`
+You can also reset the prefix with `bettercmd.resetUserPrefix(id)`
 
 ## Cooldowns
 Cooldowns are quite simple. `cooldown` is a property of a command with type object in which you must provide the `time` property (cooldown in ms) and worksFor, which is just an empty object, but is required in order for the cooldown to work.
@@ -98,4 +98,4 @@ channel - the channel this command was called in
 commands - list of available commands
 
 ## Aliases
-Want to have one or several aliases for your command? Simple, just assign the property aliases to a command! Aliases must be an array containing all the aliases that the command can use.
+Want to have one or several aliases for your command? Simple, just assign the property aliases to the command! Aliases must be an array containing all the aliases that the command can use.
