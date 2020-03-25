@@ -58,7 +58,7 @@ const portable = {
                     msg.channel.send(`===HELP===\nCategories: ${portable.categories.join(", ")}\nCommands: ${commands.join(", ")}`, {code: true})
                 } else {
                     if(Object.keys(portable.commands).includes(args[0])) {
-                        msg.channel.send(`===HELP===\nCommand: ${args[0]}\nDescription: ${portable.commands[args[0]].description}\nUsage: ${portable.commands[args[0]].usage}`, {code: true})
+                        msg.channel.send(`===HELP===\nCommand: ${args[0]}\nDescription: ${portable.commands[args[0]].description}\nUsage: ${portable.commands[args[0]].usage}${portable.commands[args[0]].aliases ? `\nAliases: ${portable.commands[args[0]].aliases.join(", ")}` : ""}`, {code: true})
                     } else if(portable.categories.includes(args.join(" "))) {
                         let categoryCommands = []
                         for(i=0;i<Object.keys(portable.commands).length;i++) {
@@ -66,6 +66,9 @@ const portable = {
                         }
                         msg.channel.send(`===HELP===\nCategory: ${args.join(" ")}\nCommands: ${categoryCommands.join(", ")}`, {code: true})
                     } else {
+                        for(i of Object.keys(portable.commands)) {
+                            if(portable.commands[i].aliases && portable.commands[i].aliases.includes(args[0])) return msg.channel.send(`===HELP===\nCommand: ${args[0]}\nDescription: ${portable.commands[i].description}\nUsage: ${portable.commands[i].usage.replace(i, args[0])}${portable.commands[i].aliases ? `\nAliases: ${portable.commands[i].aliases.join(", ").replace(args[0], i)}` : ""}`, {code: true})
+                        }
                         msg.channel.send(`No category or command was found with this name.`)
                     }
                 }
@@ -131,6 +134,7 @@ const portable = {
         if(!options.name || !options.description || !options.usage || !options.execute) throw new Error("Not enough arguments provided")
         if(!portable.categories.includes(options.category ? options.category : "No category")) throw new Error("No such category, call categories to see available categories")
         portable.commands[options.name] = options
+        return portable.commands[options.name]
     },
     handler: (client, options) => {
         /**
@@ -145,15 +149,15 @@ const portable = {
                 if(msg.author.bot && !options.bots) return
                 if(msg.channel.type === "dm" && !options.dm) return
                 if(Object.keys(portable.commands).includes(command) && msg.content.startsWith((!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id]) ? portable.prefix : portable.prefixes.all[msg.author.id])) {
-                    if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
+                    if(portable.commands[command] && portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
                         if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
                         else return msg.channel.send(portable.adminMessage)
                     }
-                    if(portable.commands[command].nsfw && !msg.channel.nsfw) {
+                    if(portable.commands[command] && portable.commands[command].nsfw && !msg.channel.nsfw) {
                         if(!portable.nsfwMessage || typeof portable.nsfwMessage !== "string") return
                         else return msg.channel.send(portable.nsfwMessage)
                     }
-                    if(portable.commands[command].cooldown && portable.commands[command].cooldown.worksFor[msg.author.id] === true && !portable.admins.includes(msg.author.id)) {
+                    if(portable.commands[command] && portable.commands[command].cooldown && portable.commands[command].cooldown.worksFor[msg.author.id] === true && !portable.admins.includes(msg.author.id)) {
                         return msg.channel.send(portable.сooldownMessage).catch(() => {msg.channel.send("You are on cooldown!")})
                     }
                     try {
@@ -166,14 +170,14 @@ const portable = {
                         if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Caught an error")
                         msg.channel.send(portable.errorMessage)
                         console.log(error)
-                        for(i of this.admins) {
+                        for(i of portable.admins) {
                             client.users.get(i).send(error, {code: "js"})
                         }
                     }
                 } else {
                     if(msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
                         for(i of Object.keys(portable.commands)) {
-                            if(portable.commands[i].aliases && portable.commands[i].aliases.includes(command)) {
+                            if(portable.commands[i] && portable.commands[i].aliases && portable.commands[i].aliases.includes(command)) {
                                 try {
                                     portable.commands[i].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
                                     if(portable.commands[i].cooldown) {
