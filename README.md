@@ -64,6 +64,7 @@ If you made a mistake, you can always remove the mistake from admins: `bettercmd
 You can see who's admin by accessing `bettercmd.admins`.
 
 Also, if you didn't like the message it gave you when you weren't an admin, you can change it by accessing `bettercmd.adminMessage`. The same goes for `bettercmd.errorMessage` which will be sent when you have an error in your execute function and `bettercmd.nsfwMessage` which will be sent if a NSFW command is executed in non-NSFW channel.
+New messages were added in v1.1 - `botNoPermMessage` and `userNoPermMessage`, which are self-explanatory. 
 
 To access all the commands you have right now, use `bettercmd.commands`.
 
@@ -96,6 +97,9 @@ bot - client instance
 channel - the channel this command was called in
 
 commands - list of available commands
+
+## Requiring permissions
+If you are making a moderation command, adding your own tests isn't very convenient. But you may not do that now, because of the property `permissions` you can assign to your commands. It's just an array of permissions. It will both check if the bot and if the user have required permission(s). Use `botNoPermMessage` and `userNoPermMessage` to customize messages when bot/user doesn't have required permissions.
 
 ## Aliases
 Want to have one or several aliases for your command? Simple, just assign the property aliases to the command! Aliases must be an array containing all the aliases that the command can use.
