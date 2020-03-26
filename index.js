@@ -42,6 +42,46 @@ const portable = {
     emulate: (content, channel) => {
         return portable.client.emit("message", {content: content, author: {id: 1, bot: false}, channel: channel})
     },
+    paginator: async(channel, author, pages, timeout) => {
+        let reactions = ["⬅️", "▶️", "◀️", "⏹️", "➡️"]
+        let currentPage = 0
+        let filter = (reaction, user) => reactions.includes(reaction.emoji.name) && user.id === author.id
+        let message = await channel.send(pages[currentPage])
+        await message.react("⬅️")
+        await message.react("◀️")
+        await message.react("⏹️")
+        await message.react("▶️")
+        await message.react("➡️")
+        let collector = message.createReactionCollector(filter, {idle: timeout})
+        collector.on('collect', r => {
+            switch(r.emoji.name) {
+                case "⬅️":
+                    currentPage = 0
+                    message.edit(pages[currentPage])
+                    break
+                case "▶️":
+                    currentPage++
+                    if(currentPage > pages.length-1) currentPage = 0
+                    message.edit(pages[currentPage]) 
+                    break
+                case "◀️":
+                    currentPage--
+                    if(currentPage < 0) currentPage = pages.length-1
+                    message.edit(pages[currentPage]) 
+                    break
+                case "⏹️":
+                    collector.stop()
+                    break
+                case "➡️":
+                    currentPage = pages.length-1
+                    message.edit(pages[currentPage])
+                    break
+            }
+        })
+        collector.on('end', () => {
+            message.delete()
+        })
+    },
     commands: {},
     adminMessage: "You must be the admin of the bot in order to execute this command.",
     errorMessage: "Caught an error!\nDo not worry, I have sent the error to my developer. Expect this error to be fixed in a short time.",
