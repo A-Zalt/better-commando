@@ -33,6 +33,8 @@ const portable = {
     errorMessage: "Caught an error!\nDo not worry, I have sent the error to my developer. Expect this error to be fixed in a short time.",
     nsfwMessage: "This command can only be executed in an NSFW channel!",
     cooldownMessage: "This command is on cooldown.",
+    botNoPermMessage: "I don't have access to the following permissions: {PERMS}",
+    userNoPermMessage: "You are missing the {PERMS} permissions.",
     changePrefix: (newprefix) => {
         prefix = newprefix
         portable.prefix = newprefix
@@ -165,6 +167,12 @@ const portable = {
                     if(portable.commands[command] && portable.commands[command].cooldown && portable.commands[command].cooldown.worksFor[msg.author.id] === true && !portable.admins.includes(msg.author.id)) {
                         return msg.channel.send(portable.сooldownMessage).catch(() => {msg.channel.send("You are on cooldown!")})
                     }
+                    if(portable.commands[command] && portable.commands[command].permissions && msg.channel.type !== "dm" && !msg.member.permissions.has(portable.commands[command].permissions, true)) {
+                        return msg.channel.send(portable.userNoPermMessage.replace(/\{PERMS\}/g, portable.commands[command].permissions.join(", "))).catch(() => {msg.channel.send("You don't have enough permissions!")})
+                    }
+                    if(portable.commands[command] && portable.commands[command].permissions && msg.channel.type !== "dm" && !msg.guild.me.permissions.has(portable.commands[command].permissions, true)) {
+                        return msg.channel.send(portable.botNoPermMessage.replace(/\{PERMS\}/g, portable.commands[command].permissions.join(", "))).catch(() => {msg.channel.send("I don't have enough permissions!")})
+                    }
                     try {
                         portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
                         if(portable.commands[command].cooldown) {
@@ -183,11 +191,28 @@ const portable = {
                     if(msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
                         for(i of Object.keys(portable.commands)) {
                             if(portable.commands[i] && portable.commands[i].aliases && portable.commands[i].aliases.includes(command)) {
+                                if(portable.commands[i] && portable.commands[i].admin && !portable.admins.includes(msg.author.id)) {
+                                    if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
+                                    else return msg.channel.send(portable.adminMessage)
+                                }
+                                if(portable.commands[i] && portable.commands[i].nsfw && !msg.channel.nsfw) {
+                                    if(!portable.nsfwMessage || typeof portable.nsfwMessage !== "string") return
+                                    else return msg.channel.send(portable.nsfwMessage)
+                                }
+                                if(portable.commands[i] && portable.commands[i].cooldown && portable.commands[i].cooldown.worksFor[msg.author.id] === true && !portable.admins.includes(msg.author.id)) {
+                                    return msg.channel.send(portable.сooldownMessage).catch(() => {msg.channel.send("You are on cooldown!")})
+                                }
+                                if(portable.commands[i] && portable.commands[i].permissions && msg.channel.type !== "dm" && !msg.member.permissions.has(portable.commands[i].permissions, true)) {
+                                    return msg.channel.send(portable.userNoPermMessage.replace(/\{PERMS\}/g, portable.commands[i].permissions.join(", "))).catch(() => {msg.channel.send("You don't have enough permissions!")})
+                                }
+                                if(portable.commands[i] && portable.commands[i].permissions && msg.channel.type !== "dm" && !msg.guild.me.permissions.has(portable.commands[i].permissions, true)) {
+                                    return msg.channel.send(portable.botNoPermMessage.replace(/\{PERMS\}/g, portable.commands[i].permissions.join(", "))).catch(() => {msg.channel.send("I don't have enough permissions!")})
+                                }
                                 try {
                                     portable.commands[i].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
                                     if(portable.commands[i].cooldown) {
                                         portable.commands[i].cooldown.worksFor[msg.author.id] = true
-                                        setTimeout(() => {portable.commands[i].cooldown.worksFor[msg.author.id] = false}, portable.commands[command].cooldown.time)
+                                        setTimeout(() => {portable.commands[i].cooldown.worksFor[msg.author.id] = false}, portable.commands[i].cooldown.time)
                                     }
                                 } catch(error) {
                                     if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Caught an error")
@@ -205,58 +230,81 @@ const portable = {
     },
     handleredit: (client, options) => {
         client.on("messageUpdate", (_old, msg) => {
-        let command = msg.content.slice(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
-                if(!options) options = {bots: false, dm: false}
-                if(msg.author.bot && !options.bots) return
-                if(msg.channel.type === "dm" && !options.dm) return
-                if(Object.keys(portable.commands).includes(command) && msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
-                    if(portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
-                        if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
-                        else return msg.channel.send(portable.adminMessage)
+            let command = msg.content.slice((!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id]) ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
+            if(!options) options = {bots: false, dm: false}
+            if(msg.author.bot && !options.bots) return
+            if(msg.channel.type === "dm" && !options.dm) return
+            if(Object.keys(portable.commands).includes(command) && msg.content.startsWith((!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id]) ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+                if(portable.commands[command] && portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
+                    if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
+                    else return msg.channel.send(portable.adminMessage)
+                }
+                if(portable.commands[command] && portable.commands[command].nsfw && !msg.channel.nsfw) {
+                    if(!portable.nsfwMessage || typeof portable.nsfwMessage !== "string") return
+                    else return msg.channel.send(portable.nsfwMessage)
+                }
+                if(portable.commands[command] && portable.commands[command].cooldown && portable.commands[command].cooldown.worksFor[msg.author.id] === true && !portable.admins.includes(msg.author.id)) {
+                    return msg.channel.send(portable.сooldownMessage).catch(() => {msg.channel.send("You are on cooldown!")})
+                }
+                if(portable.commands[command] && portable.commands[command].permissions && msg.channel.type !== "dm" && !msg.member.permissions.has(portable.commands[command].permissions, true)) {
+                    return msg.channel.send(portable.userNoPermMessage.replace(/\{PERMS\}/g, portable.commands[command].permissions.join(", "))).catch(() => {msg.channel.send("You don't have enough permissions!")})
+                }
+                if(portable.commands[command] && portable.commands[command].permissions && msg.channel.type !== "dm" && !msg.guild.me.permissions.has(portable.commands[command].permissions, true)) {
+                    return msg.channel.send(portable.botNoPermMessage.replace(/\{PERMS\}/g, portable.commands[command].permissions.join(", "))).catch(() => {msg.channel.send("I don't have enough permissions!")})
+                }
+                try {
+                    portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
+                    if(portable.commands[command].cooldown) {
+                        portable.commands[command].cooldown.worksFor[msg.author.id] = true
+                        setTimeout(() => {portable.commands[command].cooldown.worksFor[msg.author.id] = false}, portable.commands[command].cooldown.time)
                     }
-                    if(portable.commands[command].nsfw && !msg.channel.nsfw) {
-                        if(!portable.nsfwMessage || typeof portable.nsfwMessage !== "string") return
-                        else return msg.channel.send(portable.nsfwMessage)
+                } catch(error) {
+                    if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Caught an error")
+                    msg.channel.send(portable.errorMessage)
+                    console.log(error)
+                    for(i of portable.admins) {
+                        client.users.get(i).send(error, {code: "js"})
                     }
-                    if(portable.commands[command].cooldown && portable.commands[command].cooldown.worksFor[msg.author.id] === true && !portable.admins.includes(msg.author.id)) {
-                        return msg.channel.send(portable.сooldownMessage).catch(() => {msg.channel.send("You are on cooldown!")})
-                    }
-                    try {
-                        portable.commands[command].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
-                        if(portable.commands[command].cooldown) {
-                            portable.commands[command].cooldown.worksFor[msg.author.id] = true
-                            setTimeout(() => {portable.commands[command].cooldown.worksFor[msg.author.id] = false}, portable.commands[command].cooldown.time)
-                        }
-                    } catch(error) {
-                        if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Caught an error")
-                        msg.channel.send(portable.errorMessage)
-                        console.log(error)
-                        for(i of this.admins) {
-                            client.users.get(i).send(error, {code: "js"})
-                        }
-                    }
-                } else {
-                    if(msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
-                        for(i of Object.keys(portable.commands)) {
-                            if(portable.commands[i].aliases && portable.commands[i].aliases.includes(command)) {
-                                try {
-                                    portable.commands[i].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
-                                    if(portable.commands[i].cooldown) {
-                                        portable.commands[i].cooldown.worksFor[msg.author.id] = true
-                                        setTimeout(() => {portable.commands[i].cooldown.worksFor[msg.author.id] = false}, portable.commands[command].cooldown.time)
-                                    }
-                                } catch(error) {
-                                    if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Caught an error")
-                                    msg.channel.send(portable.errorMessage)
-                                    console.log(error)
-                                    for(i of portable.admins) {
-                                        client.users.get(i).send(error, {code: "js"})
-                                    }
+                }
+            } else {
+                if(msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+                    for(i of Object.keys(portable.commands)) {
+                        if(portable.commands[i] && portable.commands[i].aliases && portable.commands[i].aliases.includes(command)) {
+                            if(portable.commands[i] && portable.commands[i].admin && !portable.admins.includes(msg.author.id)) {
+                                if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
+                                else return msg.channel.send(portable.adminMessage)
+                            }
+                            if(portable.commands[i] && portable.commands[i].nsfw && !msg.channel.nsfw) {
+                                if(!portable.nsfwMessage || typeof portable.nsfwMessage !== "string") return
+                                else return msg.channel.send(portable.nsfwMessage)
+                            }
+                            if(portable.commands[i] && portable.commands[i].cooldown && portable.commands[i].cooldown.worksFor[msg.author.id] === true && !portable.admins.includes(msg.author.id)) {
+                                return msg.channel.send(portable.сooldownMessage).catch(() => {msg.channel.send("You are on cooldown!")})
+                            }
+                            if(portable.commands[i] && portable.commands[i].permissions && msg.channel.type !== "dm" && !msg.member.permissions.has(portable.commands[i].permissions, true)) {
+                                return msg.channel.send(portable.userNoPermMessage.replace(/\{PERMS\}/g, portable.commands[i].permissions.join(", "))).catch(() => {msg.channel.send("You don't have enough permissions!")})
+                            }
+                            if(portable.commands[i] && portable.commands[i].permissions && msg.channel.type !== "dm" && !msg.guild.me.permissions.has(portable.commands[i].permissions, true)) {
+                                return msg.channel.send(portable.botNoPermMessage.replace(/\{PERMS\}/g, portable.commands[i].permissions.join(", "))).catch(() => {msg.channel.send("I don't have enough permissions!")})
+                            }
+                            try {
+                                portable.commands[i].execute(msg, msg.content.split(" ").slice(1), msg.author, client)
+                                if(portable.commands[i].cooldown) {
+                                    portable.commands[i].cooldown.worksFor[msg.author.id] = true
+                                    setTimeout(() => {portable.commands[i].cooldown.worksFor[msg.author.id] = false}, portable.commands[i].cooldown.time)
+                                }
+                            } catch(error) {
+                                if(!portable.errorMessage) msg.channel.send("[PLACEHOLDER] Caught an error")
+                                msg.channel.send(portable.errorMessage)
+                                console.log(error)
+                                for(i of portable.admins) {
+                                    client.users.get(i).send(error, {code: "js"})
                                 }
                             }
                         }
                     }
                 }
+            }
         })
     }
 }
