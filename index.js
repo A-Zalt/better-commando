@@ -3,6 +3,7 @@ const util = require('util')
 const fs = require('fs')
 const portable = {
     admins: [],
+    blocked: [],
     evalExport: false,
     categories: ["Info", "No category"],
     addAdmin: (id) => {
@@ -16,7 +17,20 @@ const portable = {
         for(i of s) {
             if(i !== id) portable.admins.push(i)
         }
-        return admins
+        return portable.admins
+    },
+    block: (id) => {
+        if(typeof id !== "string" || id.length !== 18) throw new Error("Wrong Discord Snowflake")
+        portable.blocked.push(id)
+    },
+    unblock: (id) => {
+        if(typeof id !== "string" || id.length !== 18) throw new Error("Wrong Discord Snowflake")
+        let s = portable.blocked
+        portable.blocked = []
+        for(i of s) {
+            if(i !== id) portable.blocked.push(i)
+        }
+        return portable.blocked
     },
     prefix: prefix,
     filename: "prefixes",
@@ -155,6 +169,7 @@ const portable = {
                 if(!options) options = {bots: false, dm: false}
                 if(msg.author.bot && !options.bots) return
                 if(msg.channel.type === "dm" && !options.dm) return
+                if(portable.blocked.includes(msg.author.id)) return
                 if(Object.keys(portable.commands).includes(command) && msg.content.startsWith((!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id]) ? portable.prefix : portable.prefixes.all[msg.author.id])) {
                     if(portable.commands[command] && portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
                         if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
@@ -234,6 +249,7 @@ const portable = {
             if(!options) options = {bots: false, dm: false}
             if(msg.author.bot && !options.bots) return
             if(msg.channel.type === "dm" && !options.dm) return
+            if(portable.blocked.includes(msg.author.id)) return
             if(Object.keys(portable.commands).includes(command) && msg.content.startsWith((!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id]) ? portable.prefix : portable.prefixes.all[msg.author.id])) {
                 if(portable.commands[command] && portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
                     if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
