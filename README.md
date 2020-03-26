@@ -111,4 +111,7 @@ Want to have one or several aliases for your command? Simple, just assign the pr
 To emulate commands, use `bettercmd.emulate(content, channel)`. But you have to provide a real Discord channel, as it just emits the message event.
 
 ## Export to !eval
-While you were using the !eval command, you probably have noticed that variables come from the library file, not your bot file(s). To fix that, just set `bettercmd.evalExport` to whatever you want to export to the !eval command. It can be accessed in the !eval command as _exports.
+While you were using the !eval command, you probably have noticed that variables come from the library file, not your bot file(s). To fix that, just set `bettercmd.evalExport` to whatever you want to export to the !eval command. It can be accessed in the !eval command as _export.
+
+## Paginating
+To make a paginator, use the function `bettercmd.paginator`. There are 4 arguments. The first is the channel, the second is the author, the third is the array of pages, the fourth is the timeout in ms.
