@@ -49,7 +49,7 @@ At this point, you probably are thinking "How do I add more commands?". It's act
 
 You should use this example to add commands:
 ```javascript
-bettercmd.Command({name: "test", description: "A test", usage: "Test", category: "No category", admin: false, execute: async(msg, args, author, client) => {
+bettercmd.Command({name: "test", description: "A test", usage: "Test", category: "No category", admin: false, aliases: ["dummy"], execute: async(msg, args, author, client) => {
   author.send("test")
   msg.react(":white_check_mark:")
 }
