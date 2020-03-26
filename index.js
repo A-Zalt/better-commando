@@ -72,8 +72,10 @@ const portable = {
                 if(!args[0]) {
                     let commands = []
                     for(i of Object.keys(portable.commands)) {
-                        if(!portable.admins.includes(author.id) && portable.commands[i].admin) return
-                        commands.push(i)
+                        if(portable.admins.includes(author.id)) commands.push(i)
+                        else {
+                            if(!portable.commands[i].admin) commands.push(i)
+                        }
                     }
                     msg.channel.send(`===HELP===\nCategories: ${portable.categories.join(", ")}\nCommands: ${commands.join(", ")}`, {code: true})
                 } else {
