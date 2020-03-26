@@ -98,6 +98,9 @@ channel - the channel this command was called in
 
 commands - list of available commands
 
+## Blocking people
+Do you have some sort of rules in your bot and some break it so you have to restrict the access? Just block them using `bettercmd.block(id)`. Blocked someone by mistake? Unblock them by using `bettercmd.unblock(id)`.
+
 ## Requiring permissions
 If you are making a moderation command, adding your own tests isn't very convenient. But you may not do that now, because of the property `permissions` you can assign to your commands. It's just an array of permissions. It will both check if the bot and if the user have required permission(s). Use `botNoPermMessage` and `userNoPermMessage` to customize messages when bot/user doesn't have required permissions.
 
