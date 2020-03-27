@@ -64,7 +64,7 @@ If you made a mistake, you can always remove the mistake from admins: `bettercmd
 You can see who's admin by accessing `bettercmd.admins`.
 
 Also, if you didn't like the message it gave you when you weren't an admin, you can change it by accessing `bettercmd.adminMessage`. The same goes for `bettercmd.errorMessage` which will be sent when you have an error in your execute function and `bettercmd.nsfwMessage` which will be sent if a NSFW command is executed in non-NSFW channel.
-New messages were added in v1.1 - `botNoPermMessage` and `userNoPermMessage`, which are self-explanatory. 
+New messages were added in v1.1 - `botNoPermMessage` and `userNoPermMessage`, which are self-explanatory. There, it will replace {PERMS} with the missing permissions
 
 To access all the commands you have right now, use `bettercmd.commands`.
 
@@ -73,11 +73,13 @@ To access the prefix, use `bettercmd.prefix`.
 To set the prefix for a user:
 1) Skip steps 2-5 if you have set up the custom prefixes already
 2) Create a file in the folder with your bot with any name, however extension must be .json
-4) Set `bettercmd.filename` to the name of your file, minus the JSON extension.
-5) Enable prefixes by using the `bettercmd.enablePrefixes()` function
+4) Set `bettercmd.userFilename` to the name of your file, minus the JSON extension.
+5) Enable prefixes by using the `bettercmd.enableUserPrefixes()` function
 6) Use `bettercmd.setUserPrefix(id, prefix)` to set the prefix
 
 You can also reset the prefix with `bettercmd.resetUserPrefix(id)`
+
+You can do the same thing with guilds, the only difference is you have to replace all "user" with "guild"
 
 ## Cooldowns
 Cooldowns are quite simple. `cooldown` is a property of a command with type object in which you must provide the `time` property (cooldown in ms) and worksFor, which is just an empty object, but is required in order for the cooldown to work.
