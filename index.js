@@ -33,11 +33,16 @@ const portable = {
         return portable.blocked
     },
     prefix: prefix,
-    filename: "prefixes",
-    prefixes: {enabled: false},
-    enablePrefixes: () => {
-        portable.prefixes.enabled = true
-        portable.prefixes.all = JSON.parse(fs.readFileSync(`${portable.filename}.json`))
+    userFilename: "prefixes",
+    guildFilename: "guild-prefixes",
+    prefixes: {enabledUser: false, enabledGuild: false},
+    enableUserPrefixes: () => {
+        portable.prefixes.enabledUser = true
+        portable.prefixes.allUser = JSON.parse(fs.readFileSync(`${portable.userFilename}.json`))
+    },
+    enableGuildPrefixes: () => {
+        portable.prefixes.enabledGuild = true
+        portable.prefixes.allGuild = JSON.parse(fs.readFileSync(`${portable.guildFilename}.json`))
     },
     emulate: (content, channel) => {
         return portable.client.emit("message", {content: content, author: {id: 1, bot: false}, channel: channel})
@@ -94,12 +99,20 @@ const portable = {
         portable.prefix = newprefix
     },
     setUserPrefix: (id, prefix) => {
-        portable.prefixes.all[id] = prefix
-        fs.writeFileSync(`${portable.filename}.json`, JSON.stringify(portable.prefixes.all))
+        portable.prefixes.allUser[id] = prefix
+        fs.writeFileSync(`${portable.userFilename}.json`, JSON.stringify(portable.prefixes.allUser))
     },
     resetUserPrefix: (id) => {
-        delete portable.prefixes.all[id]
-        fs.writeFileSync(`${portable.filename}.json`, JSON.stringify(portable.prefixes.all))
+        delete portable.prefixes.allUser[id]
+        fs.writeFileSync(`${portable.userFilename}.json`, JSON.stringify(portable.prefixes.allUser))
+    },
+    setGuildPrefix: (id, prefix) => {
+        portable.prefixes.allGuild[id] = prefix
+        fs.writeFileSync(`${portable.guildFilename}.json`, JSON.stringify(portable.prefixes.allGuild))
+    },
+    resetGuildPrefix: (id) => {
+        delete portable.prefixes.allGuild[id]
+        fs.writeFileSync(`${portable.guildFilename}.json`, JSON.stringify(portable.prefixes.allGuild))
     },
     exampleCommands: {
         help: {
@@ -207,12 +220,12 @@ const portable = {
          * }
          */
             client.on('message', msg => {
-                let command = msg.content.slice((!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id]) ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
+                let command = msg.content.slice((!portable.prefixes.enabledUser || !portable.prefixes.allUser[msg.author.id]) ? (!portable.prefixes.enabledGuild || !portable.prefixes.allGuild[msg.guild.id]) ? portable.prefix : portable.prefixes.allGuild[msg.guild.id] : portable.prefixes.allUser[msg.author.id]).split(" ").shift().toLowerCase()
                 if(!options) options = {bots: false, dm: false}
                 if(msg.author.bot && !options.bots) return
                 if(msg.channel.type === "dm" && !options.dm) return
                 if(portable.blocked.includes(msg.author.id)) return
-                if(Object.keys(portable.commands).includes(command) && msg.content.startsWith((!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id]) ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+                if(Object.keys(portable.commands).includes(command) && msg.content.startsWith((!portable.prefixes.enabledUser || !portable.prefixes.allUser[msg.author.id]) ? (!portable.prefixes.enabledGuild || !portable.prefixes.allGuild[msg.guild.id]) ? portable.prefix : portable.prefixes.allGuild[msg.guild.id] : portable.prefixes.allUser[msg.author.id])) {
                     if(portable.commands[command] && portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
                         if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
                         else return msg.channel.send(portable.adminMessage)
@@ -245,7 +258,7 @@ const portable = {
                         }
                     }
                 } else {
-                    if(msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+                    if(msg.content.startsWith((!portable.prefixes.enabledUser || !portable.prefixes.allUser[msg.author.id]) ? (!portable.prefixes.enabledGuild || !portable.prefixes.allGuild[msg.guild.id]) ? portable.prefix : portable.prefixes.allGuild[msg.guild.id] : portable.prefixes.allUser[msg.author.id])) {
                         for(i of Object.keys(portable.commands)) {
                             if(portable.commands[i] && portable.commands[i].aliases && portable.commands[i].aliases.includes(command)) {
                                 if(portable.commands[i] && portable.commands[i].admin && !portable.admins.includes(msg.author.id)) {
@@ -287,12 +300,12 @@ const portable = {
     },
     handleredit: (client, options) => {
         client.on("messageUpdate", (_old, msg) => {
-            let command = msg.content.slice((!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id]) ? portable.prefix.length : portable.prefixes.all[msg.author.id].length).split(" ").shift().toLowerCase()
+            let command = msg.content.slice((!portable.prefixes.enabledUser || !portable.prefixes.allUser[msg.author.id]) ? (!portable.prefixes.enabledGuild || !portable.prefixes.allGuild[msg.guild.id]) ? portable.prefix : portable.prefixes.allGuild[msg.guild.id] : portable.prefixes.allUser[msg.author.id]).split(" ").shift().toLowerCase()
             if(!options) options = {bots: false, dm: false}
             if(msg.author.bot && !options.bots) return
             if(msg.channel.type === "dm" && !options.dm) return
             if(portable.blocked.includes(msg.author.id)) return
-            if(Object.keys(portable.commands).includes(command) && msg.content.startsWith((!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id]) ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+            if(Object.keys(portable.commands).includes(command) && msg.content.startsWith((!portable.prefixes.enabledUser || !portable.prefixes.allUser[msg.author.id]) ? (!portable.prefixes.enabledGuild || !portable.prefixes.allGuild[msg.guild.id]) ? portable.prefix : portable.prefixes.allGuild[msg.guild.id] : portable.prefixes.allUser[msg.author.id])) {
                 if(portable.commands[command] && portable.commands[command].admin && !portable.admins.includes(msg.author.id)) {
                     if(!portable.adminMessage || typeof portable.adminMessage !== "string") return
                     else return msg.channel.send(portable.adminMessage)
@@ -325,7 +338,7 @@ const portable = {
                     }
                 }
             } else {
-                if(msg.content.startsWith(!portable.prefixes.enabled || !portable.prefixes.all[msg.author.id] ? portable.prefix : portable.prefixes.all[msg.author.id])) {
+                if(msg.content.startsWith((!portable.prefixes.enabledUser || !portable.prefixes.allUser[msg.author.id]) ? (!portable.prefixes.enabledGuild || !portable.prefixes.allGuild[msg.guild.id]) ? portable.prefix : portable.prefixes.allGuild[msg.guild.id] : portable.prefixes.allUser[msg.author.id])) {
                     for(i of Object.keys(portable.commands)) {
                         if(portable.commands[i] && portable.commands[i].aliases && portable.commands[i].aliases.includes(command)) {
                             if(portable.commands[i] && portable.commands[i].admin && !portable.admins.includes(msg.author.id)) {
