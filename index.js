@@ -335,7 +335,6 @@ const portable = {
                     :
                     portables.prefixes.allUser[msg.author.id].length
                 )
-            console.log(command)
             if(!options) options = {bots: false, dm: false}
             if(msg.author.bot && !options.bots) return
             if(msg.channel.type === "dm" && !options.dm) return
