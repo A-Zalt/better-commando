@@ -220,7 +220,24 @@ const portable = {
          * }
          */
             client.on('message', msg => {
-                let command = msg.content.slice((!portable.prefixes.enabledUser || !portable.prefixes.allUser[msg.author.id]) ? (!portable.prefixes.enabledGuild || !portable.prefixes.allGuild[msg.guild.id]) ? portable.prefix : portable.prefixes.allGuild[msg.guild.id] : portable.prefixes.allUser[msg.author.id]).split(" ").shift().toLowerCase()
+                let command = msg.content
+                .split(" ")
+                .shift()
+                .slice(
+                    (!portable.prefixes.enabledUser 
+                    ||
+                    !portable.prefixes.allUser[msg.author.id])
+                    ?
+                        (!portable.prefixes.enabledGuild
+                        ||
+                        !portable.prefixes.allGuild[msg.guild.id])
+                        ?
+                        portable.prefix.length
+                        :
+                        portable.prefixes.allGuild[msg.guild.id].length
+                    :
+                    portables.prefixes.allUser[msg.author.id].length
+                )
                 if(!options) options = {bots: false, dm: false}
                 if(msg.author.bot && !options.bots) return
                 if(msg.channel.type === "dm" && !options.dm) return
@@ -300,7 +317,25 @@ const portable = {
     },
     handleredit: (client, options) => {
         client.on("messageUpdate", (_old, msg) => {
-            let command = msg.content.slice((!portable.prefixes.enabledUser || !portable.prefixes.allUser[msg.author.id]) ? (!portable.prefixes.enabledGuild || !portable.prefixes.allGuild[msg.guild.id]) ? portable.prefix : portable.prefixes.allGuild[msg.guild.id] : portable.prefixes.allUser[msg.author.id]).split(" ").shift().toLowerCase()
+            let command = msg.content
+                .split(" ")
+                .shift()
+                .slice(
+                    (!portable.prefixes.enabledUser 
+                    ||
+                    !portable.prefixes.allUser[msg.author.id])
+                    ?
+                        (!portable.prefixes.enabledGuild
+                        ||
+                        !portable.prefixes.allGuild[msg.guild.id])
+                        ?
+                        portable.prefix.length
+                        :
+                        portable.prefixes.allGuild[msg.guild.id].length
+                    :
+                    portables.prefixes.allUser[msg.author.id].length
+                )
+            console.log(command)
             if(!options) options = {bots: false, dm: false}
             if(msg.author.bot && !options.bots) return
             if(msg.channel.type === "dm" && !options.dm) return
