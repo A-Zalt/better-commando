@@ -56,17 +56,29 @@ bettercmd.Command({name: "test", description: "A test", usage: "Test", category:
 })
 ```
 These are the command properties:
+
 name* - the name for the command. Only present in Command function, not in the actual
+
 description* - the description of the command which is seen in the example help command.
+
 usage* - the usage of the command which is seen in the example help command.
+
 admin - whether the command is admin-only.
+
 permissions - an array of required permissions to execute the command.
+
 hidden - whether to forcibly hide the command from the example help command, even from admins.
+
 aliases - an array of alternate names for the command.
+
 category - a category the command belongs in. Must be on `bettercmd.categories`.
+
 cooldown - the cooldown of the command. Follow this pattern and replace ms there with the cooldown - `{time: ms,worksFor: {}}`
+
 nsfw - whether to make this command only accessible from the NSFW channels.
+
 execute(msg, args, author, bot)* - will call this function when executing the command.
+
 _\* - required_
 
 If right now you try to change the admin property to true, the bot will send you the message about how you can't use this command. That's because you haven't added yourself to the admins array. Here's how you do it: `bettercmd.addAdmin(id)`.
