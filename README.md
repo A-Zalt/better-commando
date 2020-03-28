@@ -55,7 +55,21 @@ bettercmd.Command({name: "test", description: "A test", usage: "Test", category:
 }
 })
 ```
-You maybe noticed the admin property. If right now you try to change it to true, the bot will send you the message about how you can't use this command. That's because you haven't added yourself to the admins array. Here's how you do it: `bettercmd.addAdmin(id)`.
+These are the command properties:
+name* - the name for the command. Only present in Command function, not in the actual
+description* - the description of the command which is seen in the example help command.
+usage* - the usage of the command which is seen in the example help command.
+admin - whether the command is admin-only.
+permissions - an array of required permissions to execute the command.
+hidden - whether to forcibly hide the command from the example help command, even from admins.
+aliases - an array of alternate names for the command.
+category - a category the command belongs in. Must be on `bettercmd.categories`.
+cooldown - the cooldown of the command. Follow this pattern and replace ms there with the cooldown - `{time: ms,worksFor: {}}`
+nsfw - whether to make this command only accessible from the NSFW channels.
+execute(msg, args, author, bot)* - will call this function when executing the command.
+_\* - required_
+
+If right now you try to change the admin property to true, the bot will send you the message about how you can't use this command. That's because you haven't added yourself to the admins array. Here's how you do it: `bettercmd.addAdmin(id)`.
 
 To make the command only available in NSFW channels, set nsfw in options to true.
 
@@ -69,6 +83,7 @@ New messages were added in v1.1 - `botNoPermMessage` and `userNoPermMessage`, wh
 To access all the commands you have right now, use `bettercmd.commands`.
 
 To access the prefix, use `bettercmd.prefix`.
+
 ## Custom prefixes
 To set the prefix for a user:
 1) Skip steps 2-5 if you have set up the custom prefixes already
@@ -82,7 +97,7 @@ You can also reset the prefix with `bettercmd.resetUserPrefix(id)`
 You can do the same thing with guilds, the only difference is you have to replace all "user" with "guild"
 
 ## Cooldowns
-Cooldowns are quite simple. `cooldown` is a property of a command with type object in which you must provide the `time` property (cooldown in ms) and worksFor, which is just an empty object, but is required in order for the cooldown to work.
+Cooldowns are quite simple. `cooldown` is a property of a command with type object in which you have to provide the `time` property (cooldown in ms) and worksFor, which is just an empty object, but is required in order for the cooldown to work.
 
 ## Example commands
 help: If no arguments, shows the list of all commands and categories.
